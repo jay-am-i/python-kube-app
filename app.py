@@ -8,6 +8,7 @@ app = Flask(__name__)
 with open('config.json') as config_file:
     config = json.load(config_file)
 
+# Route
 @app.route('/')
 def home():
     message = config.get("message", "Default message")
