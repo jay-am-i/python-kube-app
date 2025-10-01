@@ -29,16 +29,15 @@ jobs:
       - name: Set AKS Context
         uses: azure/aks-set-context@v3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-          resource-group: rg-kube-demo
-          cluster-name: myakscluster
+          resource-group: kubedemo-rg       # from Terraform
+          cluster-name: kubedemok8scluster # from Terraform
 
       - name: Log in to ACR
-        run: az acr login --name mycontainerregistry
+        run: az acr login --name kubedemocr
 
       - name: Build Docker Image
         run: |
-          IMAGE=mycontainerregistry.azurecr.io/myapp:${{ github.sha }}
+          IMAGE=kubedemocr.azurecr.io/myapp:${{ github.sha }}
           docker build -t $IMAGE .
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
