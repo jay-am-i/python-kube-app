@@ -37,7 +37,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          IMAGE=kubedemocr.azurecr.io/myapp:${{ github.sha }}
+          IMAGE=mycontainerregistry.azurecr.io/myapp:v${{ github.run_number }}
           docker build -t $IMAGE .
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
