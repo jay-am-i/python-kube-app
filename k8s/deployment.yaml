@@ -5,7 +5,7 @@ metadata:
     app: kubeapp
   name: kubeapp
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: kubeapp
