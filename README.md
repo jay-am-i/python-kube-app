@@ -26,24 +26,20 @@ This project automates:
 3. Docker image builds and pushes to **Azure Container Registry**.  
 4. Deployment of Kubernetes manifests (`Deployment` and `Service`) to AKS.
 ---
-## Architecture
-GitHub Actions (CI/CD)
-        │
-        ▼
-    Azure Container Registry (ACR)
-        │
-        ▼
-Azure Kubernetes Service (AKS) Cluster
-        │
-        ▼
-      Pods & Services
-        │
-        ▼
-   External Access via LoadBalancer
+##  Architecture
+
+| Stage | Component | Description |
+|-------|-----------|-------------|
+| **1** | **GitHub Actions (CI/CD)** | Automated pipeline triggers on code changes |
+| **2** | **Azure Container Registry (ACR)** | Stores and manages Docker container images |
+| **3** | **Azure Kubernetes Service (AKS) Cluster** | Managed Kubernetes orchestrator |
+| **4** | **Pods & Services** | Application containers and network endpoints |
+| **5** | **External Access via LoadBalancer** | Public endpoint for user access |
+
 - **Terraform** provisions:
-  - Resource Group (`kubedemo-rg`)  
-  - Container Registry (`kubedemocr`)  
-  - AKS Cluster (`kubedemok8scluster`)  
+  - Resource Group  
+  - Container Registry  
+  - AKS Cluster  
   - Role assignment for AKS to pull images from ACR
 - **GitHub Actions**:
   - **Infra Pipeline:** Terraform `init`, `plan`, `apply`
@@ -62,16 +58,18 @@ Azure Kubernetes Service (AKS) Cluster
 ## Terraform Infrastructure
 **Files:**
 - `main.tf` → defines resources  
-- `variables.tf` → project variables (`prefix`, `vm_size`, `node_count`, `max_pods`)  
-- `terraform.tf` → provider configuration
+- `variables.tf` → project variables  
+- `terraform.tf` → provider configuration  
+
 **Key Resources:**
-resource "azurerm_resource_group" "rg" { name = "kubedemo-rg" }
-resource "azurerm_container_registry" "acr" { name = "kubedemocr" }
-resource "azurerm_kubernetes_cluster" "aks" { name = "kubedemok8scluster" }
-resource "azurerm_role_assignment" "aks_acr_pull" { ... }
+- azurerm_resource_group
+- azurerm_container_registry
+- azurerm_kubernetes_cluster
+- azurerm_role_assignment  
+
 **Outputs:**
-output "acr_login_server" { value = azurerm_container_registry.acr.login_server }
-output "aks_name" { value = azurerm_kubernetes_cluster.aks.name }
+- acr_login_server
+- aks_name
 > After running Terraform, the infra is ready and AKS has permission to pull images from ACR.
 ---
 ## GitHub Actions Pipelines
@@ -102,8 +100,6 @@ IMAGE=mycontainerregistry.azurecr.io/myapp:v${{ github.run_number }}
 - Advantages:
   - Incremental versioning (`v1`, `v2`, `v3`)  
   - Easy to reference deployed version in AKS  
-- Optional: Combine with Git SHA for traceability:
-IMAGE=mycontainerregistry.azurecr.io/myapp:v${{ github.run_number }}-${{ github.sha }}
 ---
 ## Accessing the Application
 1. Check that pods and services are running:
@@ -116,16 +112,8 @@ kubeapp    LoadBalancer   10.0.23.157   20.44.12.123   80:31445/TCP
 - Open in browser: `http://<EXTERNAL-IP>`  
 > Note: First-time provisioning can take 1–3 minutes for LoadBalancer IP to appear.
 ---
-## Notes & Best Practices
-- Keep **Terraform-managed resources** in state. If a resource exists in Azure but is not in Terraform state, use `terraform import`.  
-- Always use **unique Docker tags** to prevent overwriting images.  
-- For production, consider separating **infra** and **deploy pipelines** with approvals.  
-- If LoadBalancer EXTERNAL-IP is `<pending>`, wait or check events with:
-kubectl describe svc kubeapp
----
 ## References
 - [Azure Kubernetes Service Documentation](https://learn.microsoft.com/en-us/azure/aks/)  
 - [Terraform Azure Provider](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs)  
 - [GitHub Actions for Azure](https://github.com/Azure/actions)  
-- [Docker and GitHub Actions](https://docs.github.com/en/actions/publishing-packages/publishing-docker-images)
 ---
