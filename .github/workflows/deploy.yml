@@ -1,0 +1,53 @@
+name: Deploy App to AKS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app.py'
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - 'k8s/**'
+      - 'templates/**'
+      - 'static/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Set AKS Context
+      uses: azure/aks-set-context@v3
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        resource-group: rg-kube-demo
+        cluster-name: myakscluster
+
+    - name: Log in to ACR
+      run: az acr login --name mycontainerregistry
+
+    - name: Build Docker Image
+      run: |
+        IMAGE=mycontainerregistry.azurecr.io/myapp:${{ github.sha }}
+        docker build -t $IMAGE .
+        echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+    - name: Push Docker Image
+      run: docker push $IMAGE
+
+    - name: Update K8s Deployment YAML
+      run: sed -i "s|IMAGE_PLACEHOLDER|$IMAGE|g" k8s/deployment.yaml
+
+    - name: Deploy to AKS
+      run: |
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
