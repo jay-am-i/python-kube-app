@@ -1,18 +1,30 @@
-# Use official Python slim image
-FROM python:3.11-slim
+# ===== Stage 1: Build dependencies =====
+FROM python:3.11-slim AS builder
 
 # Set work directory
 WORKDIR /app
 
-# Install dependencies
+# Install pip tools and dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
-# Copy app files
+# Copy application code
 COPY . .
 
-# Expose port Flask/Gunicorn will listen on
+# ===== Stage 2: Runtime =====
+FROM python:3.11-slim AS runtime
+
+# Set work directory
+WORKDIR /app
+
+# Copy only installed packages from builder
+COPY --from=builder /install /usr/local
+
+# Copy application code
+COPY --from=builder /app /app
+
+# Expose port
 EXPOSE 5000
 
-# Run app with Gunicorn
+# Run app
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]

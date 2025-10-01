@@ -1,0 +1,23 @@
+# Python cache and bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.env/
+
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+
+# Local IDE files
+.vscode/
+.idea/
+
+# Dockerfile build artifacts
+*.dockerfile
