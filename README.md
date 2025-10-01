@@ -112,7 +112,6 @@ kubeapp    LoadBalancer   10.0.23.157   20.44.12.123   80:31445/TCP
 - Open in browser: `http://<EXTERNAL-IP>`  
 > Note: First-time provisioning can take 1–3 minutes for LoadBalancer IP to appear.
 ---
----
 
 ## Deployment Screenshot
 
