@@ -112,6 +112,16 @@ kubeapp    LoadBalancer   10.0.23.157   20.44.12.123   80:31445/TCP
 - Open in browser: `http://<EXTERNAL-IP>`  
 > Note: First-time provisioning can take 1–3 minutes for LoadBalancer IP to appear.
 ---
+---
+
+## Deployment Screenshot
+
+Here’s a screenshot of the app running successfully:
+
+![App Screenshot](docs/app_screenshot.png)
+
+Since we've set the replicas as `3`, we can see the load balancer trying to distribute the load among the three replicas.
+
 ## References
 - [Azure Kubernetes Service Documentation](https://learn.microsoft.com/en-us/azure/aks/)  
 - [Terraform Azure Provider](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs)  
